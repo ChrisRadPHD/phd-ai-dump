@@ -195,7 +195,9 @@ class SyncResult(BaseModel):
 def health():
     return "ok"
 
-@app.post("/sync", response_model=SyncResult)
+@app.post("/sync", response_model=SyncResult,
+ openapi_extra={"x-openai-isConsequential": True}
+)
 def sync(
     x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
     file: Optional[UploadFile] = File(None),
