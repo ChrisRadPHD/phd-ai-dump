@@ -42,7 +42,12 @@ DEFAULT_DRY_RUN = os.getenv("DEFAULT_DRY_RUN", "true").lower() == "true"
 
 os.makedirs(LOG_DIR, exist_ok=True)
 
-app = FastAPI(title="Meta Budget Sync API", version="1.0.0")
+app = FastAPI(
+    title="Meta Budget Sync API",
+    version="1.0.0",
+    servers=[{"url": "https://phd-ai-dump.onrender.com"}]
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
