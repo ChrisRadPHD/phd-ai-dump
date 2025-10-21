@@ -65,9 +65,6 @@ LOG_DIR.mkdir(parents=True, exist_ok=True)
 # Serve files from that exact directory
 app.mount("/logs", StaticFiles(directory=str(LOG_DIR)), name="logs")
 
-# Mount the /logs URL path to the "logs" folder in your project
-app.mount("/logs", StaticFiles(directory="logs"), name="logs")
-
 # ------------------------- Security -------------------------
 def require_api_key(header_key: Optional[str]):
     if API_KEY:
@@ -330,6 +327,7 @@ def debug_id(id: str, x_api_key: Optional[str] = Header(None, alias="X-API-Key")
         timeout=30,
     )
     return {"http": resp.status_code, "data": resp.json(), "node_type": node_type}
+
 
 
 
