@@ -220,16 +220,17 @@ class SyncResult(BaseModel):
 def health():
     return "ok"
 
-@app.post("/sync", response_model=SyncResult,
- openapi_extra={"x-openai-isConsequential": True}
-)
+from fastapi import Request
+
+@app.post("/sync", response_model=SyncResult, openapi_extra={"x-openai-isConsequential": True})
 def sync(
-    x_api_key: Optional[str] = Header(None, alias="X-API-Key"),
+    request: Request,
     file: Optional[UploadFile] = File(None),
     csv_url: Optional[str] = Form(None),
-    dry_run: Optional[bool] = Form(None),
+    dry_run: Optional[bool] = Form(True),
 ):
-    require_api_key(x_api_key)
+    header_key = request.headers.get("X-API-Key")
+    require_api_key(header_key)
     if not ACCESS_TOKEN or not AD_ACCOUNT_ID:
         raise HTTPException(status_code=500, detail="Missing Meta credentials")
 
@@ -327,6 +328,7 @@ def debug_id(id: str, x_api_key: Optional[str] = Header(None, alias="X-API-Key")
         timeout=30,
     )
     return {"http": resp.status_code, "data": resp.json(), "node_type": node_type}
+
 
 
 
