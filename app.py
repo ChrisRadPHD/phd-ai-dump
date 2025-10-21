@@ -220,7 +220,8 @@ class SyncResult(BaseModel):
 def health():
     return "ok"
 
-from fastapi import Request
+from typing import Optional
+from fastapi import Request, File, Form, UploadFile, HTTPException
 
 @app.post("/sync", response_model=SyncResult, openapi_extra={"x-openai-isConsequential": True})
 def sync(
@@ -229,10 +230,27 @@ def sync(
     csv_url: Optional[str] = Form(None),
     dry_run: Optional[bool] = Form(True),
 ):
+    # Auth
     header_key = request.headers.get("X-API-Key")
     require_api_key(header_key)
+
+    # Meta creds present?
     if not ACCESS_TOKEN or not AD_ACCOUNT_ID:
         raise HTTPException(status_code=500, detail="Missing Meta credentials")
+
+    # Input validation
+    if not file and not csv_url:
+        raise HTTPException(status_code=400, detail="Provide a CSV file upload or csv_url.")
+
+    # Delegate to your existing sync logic (which knows how to handle file OR csv_url)
+    result: SyncResult = run_sync(
+        access_token=ACCESS_TOKEN,
+        ad_account_id=AD_ACCOUNT_ID,
+        file=file,
+        csv_url=csv_url,
+        dry_run=bool(dry_run),
+    )
+    return result
 
     # Get file content
     if file:
@@ -328,6 +346,7 @@ def debug_id(id: str, x_api_key: Optional[str] = Header(None, alias="X-API-Key")
         timeout=30,
     )
     return {"http": resp.status_code, "data": resp.json(), "node_type": node_type}
+
 
 
 
