@@ -27,6 +27,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException, Header
 from fastapi.responses import PlainTextResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type, RetryError
 
@@ -305,4 +306,5 @@ def debug_id(id: str, x_api_key: Optional[str] = Header(None, alias="X-API-Key")
         timeout=30,
     )
     return {"http": resp.status_code, "data": resp.json(), "node_type": node_type}
+
 
