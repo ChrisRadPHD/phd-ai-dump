@@ -186,13 +186,29 @@ def apply_batch(changes: List[BudgetChange], dry: bool) -> List[Dict]:
 
 def write_log(changes: List[BudgetChange], responses: List[Dict], cur: str) -> str:
     ts = datetime.utcnow().strftime("%Y%m%d_%H%M%S")
-    path = os.path.join(LOG_DIR, f"change_log_{ts}.csv")
-    with open(path, "w", newline="", encoding="utf-8") as f:
+    filename = f"change_log_{ts}.csv"
+
+    # Filesystem path (for writing)
+    fs_path = LOG_DIR / filename
+
+    # Write the CSV
+    with fs_path.open("w", newline="", encoding="utf-8") as f:
         w = csv.writer(f)
-        w.writerow(["timestamp_utc","level","id","budget_type","new_budget_major","currency","reason","status_code","response"])
+        w.writerow([
+            "timestamp_utc", "level", "id", "budget_type",
+            "new_budget_major", "currency", "reason", "status_code", "response"
+        ])
         for c, r in zip(changes, responses):
-            w.writerow([ts,c.level,c.object_id,c.budget_type,f"{c.human_amount:.2f}",c.currency or cur,c.reason,r.get("code"),r.get("body")])
-    return path
+            w.writerow([
+                ts, c.level, c.object_id, c.budget_type,
+                f"{c.human_amount:.2f}", c.currency or cur, c.reason,
+                r.get("code"), r.get("body")
+            ])
+
+    # Public URL path that matches the StaticFiles mount
+    public_url_path = f"/logs/{filename}"
+    return public_url_path
+
 
 # ------------------------- Models -------------------------
 class SyncResult(BaseModel):
@@ -314,6 +330,7 @@ def debug_id(id: str, x_api_key: Optional[str] = Header(None, alias="X-API-Key")
         timeout=30,
     )
     return {"http": resp.status_code, "data": resp.json(), "node_type": node_type}
+
 
 
 
