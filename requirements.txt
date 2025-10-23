@@ -6,3 +6,4 @@ tenacity
 pandas
 pydantic
 python-multipart
+aiofiles
