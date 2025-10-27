@@ -242,16 +242,6 @@ def sync(
     if not file and not csv_url:
         raise HTTPException(status_code=400, detail="Provide a CSV file upload or csv_url.")
 
-    # Delegate to your existing sync logic (which knows how to handle file OR csv_url)
-    result: SyncResult = run_sync(
-        access_token=ACCESS_TOKEN,
-        ad_account_id=AD_ACCOUNT_ID,
-        file=file,
-        csv_url=csv_url,
-        dry_run=bool(dry_run),
-    )
-    return result
-
     # Get file content
     if file:
         csv_bytes = file.file.read()
@@ -363,6 +353,7 @@ def debug_echo(request: Request):
         "x_api_key_start": hdr[:4] if hdr else None,
         "x_api_key_end": hdr[-4:] if hdr else None,
     }
+
 
 
 
