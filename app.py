@@ -347,6 +347,25 @@ def debug_id(id: str, x_api_key: Optional[str] = Header(None, alias="X-API-Key")
     )
     return {"http": resp.status_code, "data": resp.json(), "node_type": node_type}
 
+@app.get("/debug/api-key")
+def debug_api_key():
+    import os
+    val = os.getenv("API_KEY", "")
+    masked = val[:4] + ("*" * max(0, len(val) - 8)) + val[-4:] if val else ""
+    return {"server_API_KEY": masked, "len": len(val)}
+
+@app.get("/debug/echo")
+def debug_echo(request: Request):
+    hdr = request.headers.get("x-api-key")
+    return {
+        "has_x_api_key": bool(hdr),
+        "x_api_key_len": len(hdr) if hdr else 0,
+        "x_api_key_start": hdr[:4] if hdr else None,
+        "x_api_key_end": hdr[-4:] if hdr else None,
+    }
+
+
+
 
 
 
